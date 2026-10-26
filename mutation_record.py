@@ -29,20 +29,6 @@ class MutationRecord:
         return self.truncated_logits[self.aa_mut.mut_idx] - self.truncated_logits[self.aa_mut.mut_idx][ESM_AA_LOC[self.aa_mut.wt_aa]]
 
     @cached_property
-    def marginal_entropy(self):
-        """
-        Compute the entropy of the amino-acid marginal distribution at the mutation site.
-        This entropy quantifies the uncertainty of the model's distribution for the
-        position, whether WT, mutant, or masked model inputs were used.
-        :return:
-            A scalar tensor representing the entropy of the marginal distribution
-            at the mutation position. Shape: [] (0-dim tensor).
-        """
-        probs = torch.softmax(self.position_logits_centered_on_wt, dim=-1)
-        entropy_seqs = torch.distributions.Categorical(probs=probs).entropy()
-        return entropy_seqs
-
-    @cached_property
     def log_marginals_probability(self):
         """
         Compute log-probabilities (log-marginals) over amino acids at the mutation position.

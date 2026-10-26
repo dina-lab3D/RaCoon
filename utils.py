@@ -343,7 +343,7 @@ def run_esm(model, alphabet, protein_seq: str, aa_mut: AAMut):
             truncated_logits=truncated_logits,
         )
 
-    return mutation_record.mutant_log_marginal_probability.item(), mutation_record.marginal_entropy.item()
+    return mutation_record.mutant_log_marginal_probability.item()
 
 
 def _create_simple_bins(scores, n_bins):
@@ -598,32 +598,27 @@ def calculate_auc_and_thresholds(test_data, label_col, score_col, calibrated_col
     print(raw_cm)
 
 
-def add_raw_esm1b_score(df: pd.DataFrame, protein_sequence_modified: str, score_col: str, entropy_score_col: str) -> pd.DataFrame:
+def add_raw_esm1b_score(df: pd.DataFrame, protein_sequence_modified: str, score_col: str) -> pd.DataFrame:
     """
-    Adding raw ESM1b scores and entropy scores to the DataFrame.
+    Adding raw ESM1b scores to the DataFrame.
     :param df: Input DataFrame with columns 'protein_sequence' and 'mutant'
     :param protein_sequence_modified: Name of the column containing protein sequences
     :param score_col: Name of the column to store ESM1b scores
-    :param entropy_score_col: Name of the column to store ESM1b entropy scores
-    :return: DataFrame with added score columns
+    :return: DataFrame with added score column
     """
     df = df.copy()
-    if score_col in df.columns and entropy_score_col in df.columns:
+    if score_col in df.columns:
         return df
 
     model, alphabet = esm_setup(ESM1B_MODEL, device=DEVICE)
     esm1b_scores = []
-    esm1b_entropies = []
     for idx, row in df.iterrows():
         protein_seq = row[protein_sequence_modified]
         mutation = row['mutant']
         aa_mut = process_mutation_name(mutation, offset=OFFSET)
-        esm1b_score, esm1b_entropy = run_esm(model, alphabet, protein_seq, aa_mut)
-        esm1b_scores.append(esm1b_score)
-        esm1b_entropies.append(esm1b_entropy)
+        esm1b_scores.append(run_esm(model, alphabet, protein_seq, aa_mut))
 
     df[score_col] = esm1b_scores
-    df[entropy_score_col] = esm1b_entropies
     return df
 
 

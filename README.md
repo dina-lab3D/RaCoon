@@ -58,7 +58,7 @@ Optional output:
 ### 
 **Running with `clinvar_balanced.parquet`**
 
-For convenience, `clinvar_balanced.parquet` includes the relevant precomputed columns required by the pipeline, including the ESM1b-based score, entropy, and the residue-level annotation `is_disordered_mutation`.
+For convenience, `clinvar_balanced.parquet` includes the relevant precomputed columns required by the pipeline, including the ESM1b-based score and the residue-level annotation `is_disordered_mutation`.
 
 This means that RaCoon can be run directly with `clinvar_balanced.parquet` and produce results without recomputing these features, making execution faster and more convenient for repeated runs.
 
@@ -71,7 +71,7 @@ python main.py --df_path clinvar_balanced.parquet --save_df_path results/clinvar
 ```
 
 **What this produces:**
-Since `wt_score`, `wt_record_entropy`, and `is_disordered_mutation` are already present in `clinvar_balanced.parquet`, RaCoon skips ESM1b scoring and disorder prediction entirely and goes straight to building the calibration tree and calibrating scores. Console output includes the constructed calibration tree (splits and leaf sizes), per-leaf mutation counts, and the calibrated vs. raw AUC (e.g. `Calibrated AUC: 0.916` vs. `Raw AUC: 0.911`). The saved output file contains the input columns plus:
+Since `wt_score` and `is_disordered_mutation` are already present in `clinvar_balanced.parquet`, RaCoon skips ESM1b scoring and disorder prediction entirely and goes straight to building the calibration tree and calibrating scores. Console output includes the constructed calibration tree (splits and leaf sizes), per-leaf mutation counts, and the calibrated vs. raw AUC (e.g. `Calibrated AUC: 0.916` vs. `Raw AUC: 0.911`). The saved output file contains the input columns plus:
 
 | Column name | Description |
 | --- | --- |
@@ -80,7 +80,7 @@ Since `wt_score`, `wt_record_entropy`, and `is_disordered_mutation` are already 
 
 Note that the output only contains the held-out test rows (variants not used for calibration/training), not every input row - with the full `clinvar_balanced.parquet` (40,474 rows), this run produced 32,444 output rows.
 
-**Expected run time:** Because the heavy steps (ESM1b scoring, disorder prediction) are skipped, this demo is fast - the full run (tree construction, GMM fitting, calibration, and saving results for all ~40K variants) completed in well under a minute (~15 seconds) on a standard CPU-only desktop. If you instead run RaCoon on data where `wt_score`/`wt_record_entropy` or `is_disordered_mutation` are missing, RaCoon computes them itself (loading ESM1b and/or running disorder prediction per variant), which is significantly slower.
+**Expected run time:** Because the heavy steps (ESM1b scoring, disorder prediction) are skipped, this demo is fast - the full run (tree construction, GMM fitting, calibration, and saving results for all ~40K variants) completed in well under a minute (~15 seconds) on a standard CPU-only desktop. If you instead run RaCoon on data where `wt_score` or `is_disordered_mutation` are missing, RaCoon computes them itself (loading ESM1b and/or running disorder prediction per variant), which is significantly slower.
 
 ###
 **System Requirements** 

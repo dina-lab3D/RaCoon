@@ -3,7 +3,7 @@ import os
 import numpy as np
 import argparse
 
-from consts import ESM_MAX_LENGTH, SCORE_COL, PPI_PREDICTIONS_PATH, WT_ENTROPY_COL_NAME, \
+from consts import ESM_MAX_LENGTH, SCORE_COL, PPI_PREDICTIONS_PATH, \
     PATHOGENIC, BENIGN, N_SAMPLES_TO_GENERATE, N_BINS, \
     GMM_CREATION_SAMPLE_SIZE, RANDOM_STATE, RATIO_SAMPLE_SIZE, PPI_PREDICTIONS_FILE_NAME, RACOON_NODE_COL_NAME, \
     N_GMM_COMPONENTS, RACOON_CALIBRATION_COL_NAME, PROTEIN_SEQUENCE_COL
@@ -272,7 +272,7 @@ def get_calibration_tree(df: pd.DataFrame) -> CalibrationTree:
     )
     calibration_tree.build_tree(
         df=df,
-        score_col=WT_ENTROPY_COL_NAME,
+        score_col=SCORE_COL,
         label_col='binary_label'
     )
     print_tree(calibration_tree.root, df=df)
@@ -300,7 +300,7 @@ def run_racoon() -> None:
 
     df = pd.read_parquet(args.df_path) if args.df_path.endswith('.parquet') else pd.read_csv(args.df_path)
     df = utils.clean_duplication_in_dataset(df)
-    df = utils.add_raw_esm1b_score(df, PROTEIN_SEQUENCE_COL, SCORE_COL, WT_ENTROPY_COL_NAME)
+    df = utils.add_raw_esm1b_score(df, PROTEIN_SEQUENCE_COL, SCORE_COL)
     df = utils.add_is_ppi_mutation_column(
         df=df, zip_path=PPI_PREDICTIONS_PATH, json_filename_inside_zip=PPI_PREDICTIONS_FILE_NAME
     )
